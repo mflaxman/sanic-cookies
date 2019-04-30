@@ -42,23 +42,16 @@ class AsyncPG:  # pragma: no cover
         self.sid_factory = sid_factory
 
     async def fetch(self, sid, **kwargs):
-        print('-'*75)
-        print('fetching...', sid)
-        print('-'*75)
         val = await self.client.scalar(
             "SELECT val FROM sessions WHERE sid = $1 AND expires_at > NOW()",
             sid,
         )
-        print('val', val)
         if val is not None:
             return self.decoder(val)
 
     async def store(self, sid, expiry, val, **kwargs):
         if val is not None:
-            print('*'*75)
             val = self.encoder(val)
-            print('storing...', sid, val, expiry)
-            # FIXME: add expiry here!
             await self.client.scalar(
                 # Upsert using postgres 9.5+
                 'INSERT INTO sessions(created_at, sid, val, expires_at) VALUES(NOW(), $1, $2, $3) ON CONFLICT (sid) DO UPDATE SET val = EXCLUDED.val, expires_at = EXCLUDED.expires_at',  # noqa
