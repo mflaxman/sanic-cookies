@@ -170,7 +170,6 @@ class AuthSession(BaseSession):
         async with request[self.session_name] as sess:
             return sess.get(self.auth_key)
 
-
     def login_required(self, no_auth_handler=None):
         return login_required(
             no_auth_handler=no_auth_handler or self.no_auth_handler, 
